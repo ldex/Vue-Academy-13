@@ -1,4 +1,5 @@
 <template>
+  <div>
     <div>
         <h2>{{ title }}</h2>
         <fieldset class="filters">
@@ -9,15 +10,21 @@
           <span> Filter by name: <input v-model="filterName" /></span>
         </fieldset>
         <ul class="products">
-            <li v-for="product in sortedFilteredPaginatedProducts" v-bind:key="product.id"
-                :class='{ discontinued: product.discontinued, selected: product === selectedProduct }'
+            <li v-for="product in sortedFilteredPaginatedItems" v-bind:key="product.id"
+                v-bind:class='{ discontinued: product.discontinued, selected: product === selectedItem }'
                 :title="JSON.stringify(product)"
-                @click="onSelect(product)">
-                <span class="name">{{ product.name }}</span>
-                <span class="description">{{ product.description }}</span>
-                <span class="price">{{ product.price }}</span>
+                >
+                <router-link :to="'/product/' + product.id">
+                  <slot :product="product">
+                      {{ product.name }}
+                  </slot>
+                </router-link>
             </li>
         </ul>
+    </div>
+
+    <div class="right">
+      <router-link to="/product/insert">Create new product...</router-link>
     </div>
 
     <button @click="prevPage" :disabled="pageNumber===1">
@@ -27,93 +34,33 @@
     <button @click="nextPage" :disabled="pageNumber >= pageCount">
       Next &gt;
     </button>
+  </div>
 </template>
 
 <script>
-    export default {
-      components: {
-      },
-      watch: {
-        // reset pagination when filtering
-        filterName() {
-          this.pageNumber = 1;
-        },
-        // reset pagination when sorting
-        sortName() {
-          this.pageNumber = 1;
-        },
-        sortDir() {
-          this.pageNumber = 1;
-        }
-      },
-      props: {
-        products: {
-          type: Array,
-          default: () => []
-        },
-        pageSize: {
-          type: Number,
-          required: false,
-          default: 5
-        }
-      },
-      data() {
-          return {
-              title: "Products",
-              selectedProduct: null,
-              filterName: "",
-              sortName: 'modifiedDate',
-              sortDir: 'desc',
-              pageNumber: 1
-          }
-      },
-      computed: {
-        filteredProducts() {
-          let filter = new RegExp(this.filterName, 'i')
-          return this.products.filter(el => el.name.match(filter))
-        },
-        sortedFilteredProducts() {
-          return [...this.filteredProducts].sort((a,b) => {
-            let modifier = 1;
-            if(this.sortDir === 'desc') modifier = -1;
-            if(a[this.sortName] < b[this.sortName]) return -1 * modifier;
-            if(a[this.sortName] > b[this.sortName]) return 1 * modifier;
-            return 0;
-          })
-        },
-        sortedFilteredPaginatedProducts() {
-          const start = (this.pageNumber-1) * this.pageSize,
-                end = start + this.pageSize;
+import useList from "@/composables/items-list";
 
-          return this.sortedFilteredProducts.slice(start, end);
-        },
-        pageCount() {
-          let l = this.filteredProducts.length,
-            s = this.pageSize;
-          return Math.ceil(l / s);
-        }
+export default {
+    props: {
+      products: {
+        type: Array
       },
-      methods: {
-          sort:function(s) {
-            //if s == current sort, reverse order
-            if(s === this.sortName) {
-              this.sortDir = this.sortDir==='asc'?'desc':'asc';
-            }
-            this.sortName = s;
-          },
-          nextPage() {
-            this.pageNumber++;
-            this.selectedProduct = null;
-          },
-          prevPage() {
-            this.pageNumber--;
-            this.selectedProduct = null;
-          },
-          onSelect(product) {
-            this.$router.push({ name: "product", params: { id: product.id}});
-          }
+      pageSize: {
+        type: Number,
+        required: false,
+        default: 5
       },
+      title: {
+        type: String,
+        default: "Products"
+      }
+    },
+    setup (props) {
+      return {
+        ...useList(props.products, props.pageSize, "modifiedDate", "desc"),
+      }
     }
+}
 </script>
 
 <style lang="css" scoped>

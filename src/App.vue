@@ -1,18 +1,73 @@
 <template>
   <div id="app">
     <h1>Vue Store</h1>
+
     <nav>
       <router-link to="/">Home</router-link>
       <router-link to="/products">Products</router-link>
       <router-link to="/about">About</router-link>
+      <router-link to="/admin">Admin</router-link>
+      <router-link v-if="!loggedIn" to="/login">Login</router-link>
+      <button v-else type="button" @click="logout">Logout</button>
+
     </nav>
-    <router-view/>
+    <router-view v-slot="{ Component }">
+      <suspense>
+        <template #default>
+          <transition name="page" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </template>
+        <template #fallback>
+          <div>Loading...</div>
+        </template>
+      </suspense>
+    </router-view>
     <hr />
     <footer>Copyright Vue Academy 2021</footer>
   </div>
 </template>
 
+<script>
+import { mapGetters } from "vuex";
+export default {
+    computed: {
+    ...mapGetters(["loggedIn"])
+    },
+    methods: {
+      logout() {
+        localStorage.removeItem("auth_token");
+        location.reload();
+      }
+    }
+}
+</script>
+
 <style>
+/* transitions */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+@keyframes acrossIn {
+  0% { transform: translate3d(-100%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes acrossOut {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(100%, 0, 0); }
+}
+
+.page-enter-active {
+  animation: bounceIn .45s ease-out both;
+}
+
+.page-leave-active {
+  animation: flipOutX .65s ease-in both;
+}
 /* Master Styles */
 h1 {
   color: #42b983;

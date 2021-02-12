@@ -19,15 +19,17 @@
 </template>
 
 <script>
-import ProductService from '@/services/ProductService.js';
+import { mapState, mapActions } from 'vuex'
 
     export default {
         data () {
             return {
                 error: null,
-                loading: false,
-                product: null
+                loading: false
             }
+        },
+        computed: {
+            ...mapState(['product']), // map `this.product` to `this.$store.state.product`
         },
         props: {
             id: {
@@ -35,16 +37,11 @@ import ProductService from '@/services/ProductService.js';
                 required:true
             }
         },
+        methods: {
+            ...mapActions(['fetchProduct']) // map `this.fetchProduct(this.id)` to `this.$store.dispatch('fetchProduct', this.id)`
+        },
         created() {
-            this.loading = true;
-            ProductService.getProduct(this.id)
-                .then(response => {
-                    this.product = response.data
-                })
-                .catch(error => {
-                    this.error = error;
-                })
-                .finally(() => this.loading = false)
+            this.fetchProduct(this.id);
         }
     }
 </script>
