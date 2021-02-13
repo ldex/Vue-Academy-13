@@ -6,6 +6,7 @@ import ProductInsert from '@/components/ProductInsert.vue';
 import Error from '@/views/Error.vue';
 import Admin from '@/views/Admin.vue';
 import Login from '@/views/Login.vue';
+import store from '@/store'
 
 const routes = [
   {
@@ -68,8 +69,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    const loggedIn = localStorage.getItem('auth_token')
-    if(!loggedIn) {
+    if(!store.getters.loggedIn) {
       next('/login')
     } else next()
   } else next()

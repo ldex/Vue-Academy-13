@@ -58,6 +58,11 @@ export default createStore({
         .then(({ data }) => {
           commit('SET_TOKEN', data.token)
         })
+    },
+    checkPreviousLogin({ commit }) {
+      const existingToken = localStorage.getItem('auth_token');
+      if(existingToken)
+        commit('SET_TOKEN', existingToken)
     }
   },
   getters: {

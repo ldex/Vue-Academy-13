@@ -29,7 +29,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
+
 export default {
     computed: {
     ...mapGetters(["loggedIn"])
@@ -38,7 +39,11 @@ export default {
       logout() {
         localStorage.removeItem("auth_token");
         location.reload();
-      }
+      },
+      ...mapActions(['checkPreviousLogin'])
+    },
+    created() {
+        this.checkPreviousLogin(); // check if there is an existing auth token when we enter the app
     }
 }
 </script>

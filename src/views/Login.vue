@@ -1,20 +1,17 @@
 <template>
   <div>
       <h1>Login</h1>
-    <form @submit.prevent="login">
-      <input
-            label="Email"
-            type="email" name="email"
-            dense
-          />
-          <br />
-      <input
-            label="Password"
-            type="password" name="password"
-            dense
-          />
-      <button type="submit" name="button">Login</button>
-    </form>
+      <form @submit.prevent="login">
+        <input
+              label="Email"
+              type="email" name="email" />
+        <br />
+        <input
+              label="Password"
+              type="password" name="password" />
+        <br />
+        <button type="submit">Login</button>
+      </form>
   </div>
 </template>
 
